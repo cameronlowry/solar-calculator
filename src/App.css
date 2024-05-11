@@ -1,0 +1,270 @@
+#solar-calculator-root {
+  max-width: 1280px;
+  margin: 0 auto;
+  text-wrap: balance;
+}
+
+.logo {
+  height: 1.5em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
+}
+
+.solar-calculator {
+  display: flex;
+  flex-direction: column;
+  padding: 2rem;
+  margin: 0 auto;
+  max-width: 800px;
+}
+
+fieldset {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.section-row {
+  display: flex;
+  width: 100%;
+}
+
+.section-row div {
+  display: flex;
+  margin-bottom: 0.5rem;
+}
+
+.section-row div:first-child {
+  width: 50%;
+}
+
+.section-row div:last-child {
+  width: 50%;
+}
+
+.title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+form {
+  width: 100%;
+}
+
+.submit-form {
+  display: flex;
+  margin: 24px 0 auto 0;
+}
+
+a.active {
+  color: red;
+}
+
+.stepper {
+  display: flex;
+  padding: 24px;
+  width: 100%;
+}
+
+.stepper ol {
+  margin: 0;
+  padding: 0;
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+}
+
+.error {
+  display: flex;
+  width: 100%;
+  margin-top: 0.25rem;
+  font-size: 0.875em;
+  color: #dc3545;
+}
+
+.button-row {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+label {
+  display: flex;
+  color: #5D8C3B;
+  font-weight: bold;
+  font-size: 18px;
+  margin-top: 16px;
+}
+
+.slider {
+  -webkit-appearance: none;
+  /* Override default CSS styles */
+  appearance: none;
+  width: 100%;
+  /* Full-width */
+  height: 48px;
+  /* Specified height */
+  background: #d3d3d3;
+  /* Grey background */
+  outline: none;
+  /* Remove outline */
+  opacity: 0.7;
+  /* Set transparency (for mouse-over effects on hover) */
+  -webkit-transition: 0.2s;
+  /* 0.2 seconds transition on hover */
+  transition: opacity 0.2s;
+  border-radius: 13px;
+}
+
+/* Mouse-over effects */
+.slider:hover {
+  opacity: 1;
+  /* Fully shown on mouse-over */
+}
+
+/* The slider handle (use -webkit- (Chrome, Opera, Safari, Edge) and -moz- (Firefox) to override default look) */
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  /* Override default look */
+  appearance: none;
+  width: 46px;
+  /* Set a specific slider handle width */
+  height: 46px;
+  border-radius: 6px;
+  /* Slider handle height */
+  background: #5D8C3B;
+  /* Green background */
+  cursor: pointer;
+  /* Cursor on hover */
+}
+
+.checkbox-grid-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  grid-gap: 1rem;
+}
+
+/* The switch - the box around the slider */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+
+  /* Hide default HTML checkbox */
+  input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+
+  /* The slider */
+  .switch__slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    -webkit-transition: .4s;
+    transition: .4s;
+  }
+
+  .switch__slider:before {
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    -webkit-transition: .4s;
+    transition: .4s;
+  }
+
+  input:checked+.switch__slider {
+    background-color: #5D8C3B;
+  }
+
+  input:focus+.switch__slider {
+    box-shadow: 0 0 1px #5D8C3B;
+  }
+
+  input:checked+.switch__slider:before {
+    -webkit-transform: translateX(26px);
+    -ms-transform: translateX(26px);
+    transform: translateX(26px);
+  }
+
+  /* Rounded sliders */
+  .switch__slider.round {
+    border-radius: 34px;
+  }
+
+  .switch__slider.round:before {
+    border-radius: 50%;
+  }
+}
+a.theme-toggle {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+}
+
+a.theme-toggle img {
+  width: 36px;
+}

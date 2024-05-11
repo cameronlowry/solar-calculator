@@ -1,0 +1,14 @@
+[
+    {
+        "name": "panels",
+        "title": "Solar Panel system only (not recommended for load shedding areas, cost saving only)",
+        "required": "required",
+        "id": "panels"
+    },
+    {
+        "name": "panelsPlusStorage",
+        "title": "Solar Panels + Battery storage",
+        "required": "required",
+        "id": "panels_plus_storage"
+    }
+]
