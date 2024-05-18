@@ -14,7 +14,7 @@ export const Results = () => {
   const [state, setState] = useAppState();
 
   const { handleSubmit, register, getValues, setValue } = useForm({
-    defaultValues: { ...state, monthlyBill: 200, percentage: 100, showBattery: true },
+    defaultValues: { ...state, monthlyBill: 200, percentage: 100, showBattery: true, theme: "light" },
   });
   const navigate = useNavigate();
 
@@ -24,9 +24,11 @@ export const Results = () => {
   };
   const currentSizeRatio = getValues().showBattery ? sizeRatioBattery : sizeRatio;
   const size = ((getValues()?.monthlyBill * currentSizeRatio * getValues()?.percentage) / 100).toFixed(2);
-  const batteries = size <= 5 ? "1x 5kWh" : `${Math.ceil(size / 9)}x 10kWh`;
+  const inverter = size <= 3 ? `3 kW` : size <= 5 ? `5 kW` : size <= 10 ? `10 kW` : size <= 15 ? `${Math.ceil(size / 5)}x 5 kW` : `${Math.ceil(size / 10)}x 10 kW`;
+  const batteries = size <= 3 ? `1 x 3kWh` : size <= 5 ? `1 x 5kWh` : size <= 10 ? `1 x 10 kWh` : size <= 15 ? `${Math.ceil(size / 5)}x 5kWh` : `${Math.ceil(size / 10)}x 10kWh`;
   const panels = Math.ceil(size / 0.55);
   const savings = size * savingsRatio * 6 * 30 * 12 * 5;
+
   const numberFormatter = new Intl.NumberFormat("en-US", {
     style: "decimal",
     minimumFractionDigits: 0,
@@ -36,26 +38,6 @@ export const Results = () => {
     <>
       <Form onSubmit={handleSubmit(saveData)}>
         <fieldset>
-          <h4>To cover {getValues()?.percentage}% of your average utility bill, you’ll need:</h4>
-          <label>Number of panels</label>
-          <div>{panels} Tier 1 550 Watt Panels</div>
-          <label>System size</label>
-          <div>{size} kWp</div>
-          <label>Battery</label>
-          {getValues()?.showBattery && <div>{batteries}</div>}
-          <label className="switch mt-1">
-            <Input
-              type="checkbox"
-              {...register("showBattery", {
-                onChange: (event) => {
-                  setState({ showBattery: !getValues().showBattery });
-                },
-              })}
-            />
-            <span className="switch__slider round"></span>
-          </label>
-          <label className="mt-4">Potential savings</label>
-          <div>R{numberFormatter.format(savings)} Over 5 Years</div>
           <label>Current bill</label>
           <div className="d-flex align-items-center mb-2">
             R
@@ -63,20 +45,40 @@ export const Results = () => {
               type="number"
               value={getValues()?.monthlyBill}
               onChange={(event) => {
-                setState({ monthlyBill: event?.target?.valueAsNumber });
+                setState({ ...state, monthlyBill: event?.target?.valueAsNumber });
                 setValue("monthlyBill", event?.target?.valueAsNumber);
               }}
             />
           </div>
-          <Slider max={25000} {...register("monthlyBill", { onChange: (event) => setState({ monthlyBill: event?.target?.valueAsNumber }) })} />
-          <label>New offset bill @ {getValues()?.percentage}%</label>R
-          {numberFormatter.format((getValues()?.monthlyBill * getValues()?.percentage) / 100)}
-          <Slider
-            style={{ color: "green", width: "100%" }}
-            min={1}
-            max={200}
-            {...register("percentage", { onChange: (event) => setState({ percentage: event?.target?.valueAsNumber }) })}
-          />
+          <Slider max={25000} {...register("monthlyBill", { onChange: (event) => setState({ ...state, monthlyBill: event?.target?.valueAsNumber }) })} />
+
+          <h4 className="mt-5">To cover {getValues()?.percentage}% of your average utility bill, you’ll need:</h4>
+          <label>Number of panels</label>
+          <div>{panels} Tier 1 550 Watt Panels</div>
+
+          <label>System size</label>
+          <div>{size} kWp</div>
+
+          <label>Inverter size</label>
+          <div>{inverter}</div>
+
+          <label>Battery</label>
+          {getValues()?.showBattery && <div>{batteries}</div>}
+          <label className="switch mt-1">
+            <Input
+              type="checkbox"
+              {...register("showBattery", {
+                onChange: (event) => {
+                  setState({ ...state, showBattery: !getValues().showBattery });
+                },
+              })}
+            />
+            <span className="switch__slider round"></span>
+          </label>
+
+          <label className="mt-4">Potential savings</label>
+          <div>R{numberFormatter.format(savings)} Over 5 Years</div>
+
           <div className="py-4">
             <h5>ENVIRONMENTAL IMPACT (5 YEARS)</h5>
             <div className="row">
@@ -96,12 +98,6 @@ export const Results = () => {
 
             <label>Keep in Mind</label>
             <div>This is for ideal situations, but you may need more or less panels depending on your needs</div>
-            <div>
-              <small>
-                Slider @ 100% is to offset your ENTIRE electric bill. Your needs may vary. Try moving the slider for smaller or bigger system sizes to
-                suit your budget and goals.
-              </small>
-            </div>
           </div>
           {/* <label>Possible reasons to decrease:</label>
           <div>Limited roof-space Heavily shaded roof Financial constraints/budget </div>
@@ -129,12 +125,17 @@ export const Results = () => {
       <a
         onClick={() => {
           var element = document.documentElement;
-          element.setAttribute("data-bs-theme", state.theme === "dark" ? "light" : "dark");
-          setState({ theme: state.theme === "dark" ? "light" : "dark" });
+          element.setAttribute("data-bs-theme", getValues()?.theme === "dark" ? "light" : "dark");
+          setState({ ...state, theme: getValues()?.theme === "dark" ? "light" : "dark" });
+          setValue("theme", getValues()?.theme === "dark" ? "light" : "dark");
         }}
         className="theme-toggle"
       >
-        <img style={{filter: `invert(${state.theme === "dark" ? "1" : "0"})`}} src={state.theme === "dark" ? sun : sunglasses} alt="Dark/light mode" />
+        <img
+          style={{ filter: `invert(${getValues()?.theme === "dark" ? "1" : "0"})` }}
+          src={getValues()?.theme === "dark" ? sun : sunglasses}
+          alt="Dark/light mode"
+        />
       </a>
     </>
   );
