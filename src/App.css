@@ -264,6 +264,9 @@ a.theme-toggle {
   top: 1rem;
   right: 1rem;
 }
+a.theme-toggle:hover {
+  cursor: pointer;
+}
 
 a.theme-toggle img {
   width: 36px;
