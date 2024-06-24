@@ -67,7 +67,11 @@
   hr {
     margin: 2em 0 1em 0;
     width: 100%;
-    background-color:  #5D8C3B;
+    background-color: #5D8C3B;
+  }
+
+  .d-flex {
+    display: flex;
   }
 
   .card {

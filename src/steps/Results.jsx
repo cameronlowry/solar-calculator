@@ -4,8 +4,10 @@ import { useNavigate } from "react-router-dom";
 import { Form, Input } from "../forms";
 import { useAppState } from "../state";
 import { Slider } from "../forms/Slider";
+import Checkmark from "./Checkmark";
 
-const SIZE_RATIO = 0.0026548;
+const SIZE_RATIO = 0.0021;
+const SLIDING_SCALE = 0.000000045;
 const PANEL_BASE = 0.55; // 550W panels
 const SAVINGS_RATIO = 2.9788; // keep in sync with current price
 
@@ -21,7 +23,7 @@ export const Results = () => {
     setState({ ...state, ...data });
     navigate("/complete");
   };
-  const currentSizeRatio = SIZE_RATIO;
+  const currentSizeRatio = SIZE_RATIO + getValues()?.monthlyBill * SLIDING_SCALE;
   const systemSize =
     getValues().solutionType === "loadShedding"
       ? (getValues()?.monthlyBill * currentSizeRatio * getValues()?.percentage) / 100
@@ -39,14 +41,13 @@ export const Results = () => {
       ? 16
       : systemSizeRoundedUp < 29.7
       ? 30
-      : systemSizeRoundedUp < 69.85
+      : systemSizeRoundedUp < 49.85
       ? 50
       : 100;
 
   const batterySize =
     inverter <= 5 ? 5 : inverter <= 10 ? 10 : inverter <= 15 ? 15 : inverter <= 20 ? 20 : inverter <= 30 ? 30 : inverter < 70 ? 60 : 100;
-  // const panels = inverter <= 5 ? 6 : inverter <= 10 ? 12 : inverter <= 15 ? 16 : inverter <= 20 ? 18 : inverter <= 30 ? 36 : inverter < 70 ? 72 : 100;
-  const panels = Math.ceil(systemSize / PANEL_BASE);
+  const panels = Math.ceil(systemSizeRoundedUp / PANEL_BASE);
   const savings = systemSizeRoundedUp * SAVINGS_RATIO * 6 * 30 * 12 * 5;
 
   const numberFormatter = new Intl.NumberFormat("en-US", {
@@ -60,7 +61,7 @@ export const Results = () => {
         <fieldset>
           <label>Current electricity bill</label>
           <div className="d-flex align-items-center mb-2">
-            R
+            R&nbsp;
             <Input
               type="number"
               value={getValues()?.monthlyBill}
@@ -99,19 +100,28 @@ export const Results = () => {
             </label>
           </div>
 
-          {/* <div>
+          <div>
             <label>System size</label>
-            <div>{systemSizeRoundedUp}kWp</div>
-          </div> */}
+            <div>{numberFormatter.format(systemSizeRoundedUp)}kWp</div>
+          </div>
 
           <label>Inverter Size {getValues().solutionType === "loadShedding" ? "" : "(Off-grid)"} </label>
-          <div>{inverter}kW Hybrid Inverter</div>
+          <div className="d-flex">
+            <Checkmark />
+            {inverter}kW Hybrid Inverter
+          </div>
 
           <label>Battery</label>
-          {getValues()?.showBattery && <div>{batterySize}kWh Lithium Battery</div>}
+          <div className="d-flex">
+            <Checkmark />
+            {getValues()?.showBattery && <div>{batterySize}kWh Lithium Battery</div>}
+          </div>
 
           <label>Number of panels</label>
-          <div>{panels}x 550W Tier1 Solar Panels</div>
+          <div className="d-flex">
+            <Checkmark />
+            {panels}x 550W Tier1 Solar Panels
+          </div>
 
           {/* <label className="switch mt-0">
             <Input
