@@ -4,17 +4,16 @@ import { useNavigate } from "react-router-dom";
 import { Form, Input } from "../forms";
 import { useAppState } from "../state";
 import { Slider } from "../forms/Slider";
-import sun from "../assets/sun.svg";
-import sunglasses from "../assets/sunglasses.svg";
-const sizeRatio = 0.0023896;
-const sizeRatioBattery = 0.0026548;
-const savingsRatio = 2.9788;
+
+const SIZE_RATIO = 0.0026548;
+const PANEL_BASE = 0.55; // 550W panels
+const SAVINGS_RATIO = 2.9788; // keep in sync with current price
 
 export const Results = () => {
   const [state, setState] = useAppState();
 
   const { handleSubmit, register, getValues, setValue } = useForm({
-    defaultValues: { ...state, monthlyBill: 200, percentage: 100, showBattery: true, theme: "light" },
+    defaultValues: { ...state, monthlyBill: 200, percentage: 66, showBattery: true, solutionType: "loadShedding", theme: "light" },
   });
   const navigate = useNavigate();
 
@@ -22,12 +21,33 @@ export const Results = () => {
     setState({ ...state, ...data });
     navigate("/complete");
   };
-  const currentSizeRatio = getValues().showBattery ? sizeRatioBattery : sizeRatio;
-  const size = ((getValues()?.monthlyBill * currentSizeRatio * getValues()?.percentage) / 100).toFixed(2);
-  const inverter = size <= 3 ? `3 kW` : size <= 5 ? `5 kW` : size <= 10 ? `10 kW` : size <= 15 ? `${Math.ceil(size / 5)}x 5 kW` : `${Math.ceil(size / 10)}x 10 kW`;
-  const batteries = size <= 3 ? `1 x 3kWh` : size <= 5 ? `1 x 5kWh` : size <= 10 ? `1 x 10 kWh` : size <= 15 ? `${Math.ceil(size / 5)}x 5kWh` : `${Math.ceil(size / 10)}x 10kWh`;
-  const panels = Math.ceil(size / 0.55);
-  const savings = size * savingsRatio * 6 * 30 * 12 * 5;
+  const currentSizeRatio = SIZE_RATIO;
+  const systemSize =
+    getValues().solutionType === "loadShedding"
+      ? (getValues()?.monthlyBill * currentSizeRatio * getValues()?.percentage) / 100
+      : getValues()?.monthlyBill * currentSizeRatio;
+  const systemSizeRoundedUp = Math.ceil(systemSize / PANEL_BASE) * PANEL_BASE;
+
+  const inverter =
+    systemSizeRoundedUp < 4.95
+      ? 5
+      : systemSizeRoundedUp < 7.7
+      ? 8
+      : systemSizeRoundedUp < 12.1
+      ? 12
+      : systemSizeRoundedUp < 19.8
+      ? 16
+      : systemSizeRoundedUp < 29.7
+      ? 30
+      : systemSizeRoundedUp < 69.85
+      ? 50
+      : 100;
+
+  const batterySize =
+    inverter <= 5 ? 5 : inverter <= 10 ? 10 : inverter <= 15 ? 15 : inverter <= 20 ? 20 : inverter <= 30 ? 30 : inverter < 70 ? 60 : 100;
+  // const panels = inverter <= 5 ? 6 : inverter <= 10 ? 12 : inverter <= 15 ? 16 : inverter <= 20 ? 18 : inverter <= 30 ? 36 : inverter < 70 ? 72 : 100;
+  const panels = Math.ceil(systemSize / PANEL_BASE);
+  const savings = systemSizeRoundedUp * SAVINGS_RATIO * 6 * 30 * 12 * 5;
 
   const numberFormatter = new Intl.NumberFormat("en-US", {
     style: "decimal",
@@ -38,7 +58,7 @@ export const Results = () => {
     <>
       <Form onSubmit={handleSubmit(saveData)}>
         <fieldset>
-          <label>Current bill</label>
+          <label>Current electricity bill</label>
           <div className="d-flex align-items-center mb-2">
             R
             <Input
@@ -50,21 +70,50 @@ export const Results = () => {
               }}
             />
           </div>
-          <Slider max={25000} {...register("monthlyBill", { onChange: (event) => setState({ ...state, monthlyBill: event?.target?.valueAsNumber }) })} />
+          <Slider
+            max={25000}
+            {...register("monthlyBill", { onChange: (event) => setState({ ...state, monthlyBill: event?.target?.valueAsNumber }) })}
+          />
 
-          <h4 className="mt-5">To cover {getValues()?.percentage}% of your average utility bill, you’ll need:</h4>
-          <label>Number of panels</label>
-          <div>{panels} Tier 1 550 Watt Panels</div>
+          <label>Solution type</label>
 
-          <label>System size</label>
-          <div>{size} kWp</div>
+          <div className="radio-group">
+            <label className={`radio-label ${getValues("solutionType") === "loadShedding" ? "selected" : ""}`} htmlFor="field-loadShedding">
+              <Input
+                {...register("solutionType", { onChange: () => setState({ ...state, solutionType: "loadShedding" }) })}
+                type="radio"
+                value="loadShedding"
+                id="field-loadShedding"
+              />
+              Load shedding solution
+              <span className="radio-flag">recommended</span>
+            </label>
+            <label className={`radio-label ${getValues("solutionType") === "offGrid" ? "selected" : ""}`} htmlFor="field-offGrid">
+              <Input
+                {...register("solutionType", { onChange: () => setState({ ...state, solutionType: "offGrid" }) })}
+                type="radio"
+                value="offGrid"
+                id="field-offGrid"
+              />
+              Off-grid system
+            </label>
+          </div>
 
-          <label>Inverter size</label>
-          <div>{inverter}</div>
+          {/* <div>
+            <label>System size</label>
+            <div>{systemSizeRoundedUp}kWp</div>
+          </div> */}
+
+          <label>Inverter Size {getValues().solutionType === "loadShedding" ? "" : "(Off-grid)"} </label>
+          <div>{inverter}kW Hybrid Inverter</div>
 
           <label>Battery</label>
-          {getValues()?.showBattery && <div>{batteries}</div>}
-          <label className="switch mt-1">
+          {getValues()?.showBattery && <div>{batterySize}kWh Lithium Battery</div>}
+
+          <label>Number of panels</label>
+          <div>{panels}x 550W Tier1 Solar Panels</div>
+
+          {/* <label className="switch mt-0">
             <Input
               type="checkbox"
               {...register("showBattery", {
@@ -74,25 +123,27 @@ export const Results = () => {
               })}
             />
             <span className="switch__slider round"></span>
-          </label>
+          </label> */}
+
+          <hr />
 
           <label className="mt-4">Potential savings</label>
           <div>R{numberFormatter.format(savings)} Over 5 Years</div>
 
-          <div className="py-4">
-            <h5>ENVIRONMENTAL IMPACT (5 YEARS)</h5>
+          <div className="mt-3">
+            <label>ENVIRONMENTAL IMPACT (5 YEARS)</label>
             <div className="row">
               <div className="col-sm-12 col-md-4">
                 <label>CO2 Offset:</label>
-                <div>{numberFormatter.format(size * 5.660377)} metric tons</div>
+                <div>{numberFormatter.format(systemSize * 5.660377)} metric tons</div>
               </div>
               <div className="col-sm-12 col-md-4">
                 <label>Car driven:</label>
-                <div>{numberFormatter.format(size * 13637.7358)} km</div>
+                <div>{numberFormatter.format(systemSize * 13637.7358)} km</div>
               </div>
               <div className="col-sm-12 col-md-4">
                 <label>Trees planted:</label>
-                <div>{numberFormatter.format(size * 90.56603)}</div>
+                <div>{numberFormatter.format(systemSize * 90.56603)}</div>
               </div>
             </div>
 
@@ -122,7 +173,7 @@ export const Results = () => {
           </div> */}
         </fieldset>
       </Form>
-      <a
+      {/* <a
         onClick={() => {
           var element = document.documentElement;
           element.setAttribute("data-bs-theme", getValues()?.theme === "dark" ? "light" : "dark");
@@ -136,7 +187,7 @@ export const Results = () => {
           src={getValues()?.theme === "dark" ? sun : sunglasses}
           alt="Dark/light mode"
         />
-      </a>
+      </a> */}
     </>
   );
 };

@@ -1,8 +1,8 @@
-import "./App.css";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { AppProvider } from "./state";
 import { Results } from "./steps/Results";
-import logo from "./assets/GC-Solar_icon.svg";
+
+import "./App.css";
 
 function SolarCalculator() {
 
@@ -10,7 +10,7 @@ function SolarCalculator() {
     <div className="solar-calculator">
       <header>
         <h3>
-          <img className="logo m-0 p-1" src={logo} alt="Greencoin Logo" /> Solar Calculator
+          Solar Calculator
         </h3>
       </header>
       <AppProvider>
@@ -20,6 +20,8 @@ function SolarCalculator() {
             {/* <Route path="/" element={<SelectSystemType />} /> */}
             {/* <Route path="/bill" element={<MonthlyBill />} /> */}
             <Route path="/" element={<Results />} />
+            <Route path="/calculator" element={<Results />} />
+            <Route path="/solar-calculator" element={<Results />} />
           </Routes>
         </Router>
         
