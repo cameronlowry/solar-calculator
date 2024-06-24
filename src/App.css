@@ -260,8 +260,7 @@
     border-radius: 8px;
     background: #5D8C3B;
     cursor: pointer;
-    margin: 4px 0 !important;
-    transform: translateY(-50%);
+    margin: 4px 2px;
   }
 
   .checkbox-grid-container {
